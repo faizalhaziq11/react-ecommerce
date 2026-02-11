@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const instance = axios.create({
-  baseURL: 'fake-store',
+  baseURL: '/fake-store',
   timeout: 5000,
   headers: {
     'Content-Type': 'application/json',
@@ -43,7 +43,17 @@ function isAborted(error) {
   return false;
 }
 
-async function reques(method, url, any = undefined, config = {}) {
+function handleResponse(response) {
+  const data = response.data;
+
+  if (data === '' || data === null || data === undefined) {
+    return 'No data found';
+  }
+
+  return data;
+}
+
+async function request(method, url, any = undefined, config = {}) {
   try {
     const response = await instance.request({
       method,
@@ -51,7 +61,8 @@ async function reques(method, url, any = undefined, config = {}) {
       data: any,
       ...config,
     });
-    return response.data;
+
+    return handleResponse(response);
   } catch (err) {
     if (isAborted(err)) {
       const abortErr = new Error('Request aborted');
@@ -68,8 +79,8 @@ async function reques(method, url, any = undefined, config = {}) {
 }
 
 export const http = {
-  get: (url, config = {}) => reques('GET', url, undefined, config),
-  post: (url, data, config = {}) => reques('POST', url, data, config),
-  put: (url, data, config = {}) => reques('PUT', url, data, config),
-  delete: (url, config = {}) => reques('DELETE', url, undefined, config),
+  get: (url, config = {}) => request('GET', url, undefined, config),
+  post: (url, data, config = {}) => request('POST', url, data, config),
+  put: (url, data, config = {}) => request('PUT', url, data, config),
+  delete: (url, config = {}) => request('DELETE', url, undefined, config),
 };

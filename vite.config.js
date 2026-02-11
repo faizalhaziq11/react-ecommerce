@@ -12,7 +12,7 @@ export default defineConfig({
   ],
   server: {
     proxy: {
-      'fake-store': {
+      '/fake-store': {
         target: 'https://fakestoreapi.com',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/fake-store/, ''),
