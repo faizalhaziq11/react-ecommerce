@@ -3,6 +3,8 @@ import { http } from '../helper/requestUtils';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import { Badge } from 'react-bootstrap';
+import Container from 'react-bootstrap/Container';
+import Footer from './Footer';
 
 const Products = () => {
   const [loading, setLoading] = useState(false);
@@ -20,11 +22,12 @@ const Products = () => {
   if (loading) return <h1>Loading...</h1>;
 
   return (
-    <div className='container-fluid'>
-      <div>
+    <Container fluid={true}>
+      <div className='mb-3 d-flex justify-content-between'>
         <h2 className='text-center'>Store</h2>
+        <Button variant='primary'>Cart</Button>
       </div>
-      <div className='d-flex flex-wrap justify-content-center gap-3'>
+      <div className='d-flex flex-wrap gap-3 mb-3'>
         {product.map((product) => (
           <Card
             style={{ width: '18rem', height: '30rem' }}
@@ -57,7 +60,8 @@ const Products = () => {
           </Card>
         ))}
       </div>
-    </div>
+      <Footer />  
+    </Container>
   );
 };
 
