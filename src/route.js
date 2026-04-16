@@ -8,7 +8,7 @@ const router = createBrowserRouter([
     Component: App,
   },
   {
-    path: '/products',
+    path: '/shop',
     Component: Products,
   },
 ]);
