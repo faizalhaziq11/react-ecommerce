@@ -1,0 +1,88 @@
+:root {
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+/* Offset anchor targets below the sticky navbar */
+#about,
+#services,
+#contact {
+  scroll-margin-top: 80px;
+}
+
+/* Navbar links */
+.navbar-nav .nav-link {
+  color: #212529;
+  transition: color 160ms var(--ease-out);
+}
+
+.navbar-nav .nav-link:hover {
+  color: #1e3c72;
+}
+
+.navbar-nav .nav-link.active {
+  color: #ff512f;
+  font-weight: 700;
+}
+
+/* Buttons: press feedback (applies to every .btn app-wide) */
+.btn {
+  transition: transform 160ms var(--ease-out),
+    color 0.15s ease-in-out,
+    background-color 0.15s ease-in-out,
+    border-color 0.15s ease-in-out,
+    box-shadow 0.15s ease-in-out,
+    filter 200ms var(--ease-out);
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+/* Brand gradient CTA */
+.btn-gradient {
+  background: linear-gradient(45deg, #ff512f, #dd2476);
+  border: none;
+  color: #fff;
+  filter: brightness(1);
+}
+
+.btn-gradient:hover {
+  filter: brightness(1.08);
+  color: #fff;
+}
+
+.btn-gradient.btn-added {
+  background: linear-gradient(45deg, #198754, #20c997);
+}
+
+/* Entrance animation (celebrations, success states) */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 400ms var(--ease-out) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn {
+    transition: none;
+  }
+
+  .offcanvas,
+  .offcanvas-backdrop {
+    transition: none;
+  }
+
+  .animate-fade-in-up {
+    animation: none;
+  }
+}

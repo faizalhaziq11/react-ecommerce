@@ -1,12 +1,23 @@
-import React, { useState } from 'react';
-import { Container, Row, Col, Card, Form, Button, FloatingLabel, ListGroup, Badge } from 'react-bootstrap';
+import { useState } from 'react';
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import Card from 'react-bootstrap/Card';
+import Form from 'react-bootstrap/Form';
+import Button from 'react-bootstrap/Button';
+import FloatingLabel from 'react-bootstrap/FloatingLabel';
+import ListGroup from 'react-bootstrap/ListGroup';
+import Badge from 'react-bootstrap/Badge';
 import { useNavigate } from 'react-router';
 import useCartStore from '../store/cartStore';
 
 const Checkout = () => {
-    const { cartItems, totalCartPrice, clearCart } = useCartStore();
+    const cartItems = useCartStore((state) => state.cartItems);
+    const totalCartPrice = useCartStore((state) => state.totalCartPrice);
+    const clearCart = useCartStore((state) => state.clearCart);
     const navigate = useNavigate();
 
+    const [submitted, setSubmitted] = useState(false);
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
@@ -27,14 +38,37 @@ const Checkout = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        // In a real application, you would handle payment processing here
-        alert('Order placed successfully! Thank you for your purchase.');
+        setSubmitted(true);
+    };
+
+    const handleContinue = () => {
         clearCart();
         navigate('/');
     };
 
+    if (submitted) {
+        return (
+            <div className="bg-light py-5">
+                <Container>
+                    <Card className="shadow-sm border-0 rounded-4 text-center mx-auto animate-fade-in-up" style={{ maxWidth: '520px' }}>
+                        <Card.Body className="p-5">
+                            <div className="text-success mb-3">
+                                <i className="bi bi-check-circle-fill" style={{ fontSize: '4rem' }}></i>
+                            </div>
+                            <h2 className="fw-bold text-dark mb-2">Order Placed!</h2>
+                            <p className="text-muted mb-4">Thank you for your purchase. A confirmation email is on its way.</p>
+                            <Button className="btn-gradient rounded-pill px-4 py-2 fw-bold" onClick={handleContinue}>
+                                Continue Shopping
+                            </Button>
+                        </Card.Body>
+                    </Card>
+                </Container>
+            </div>
+        );
+    }
+
     return (
-        <div className="bg-light min-vh-100 py-5" style={{ fontFamily: '"Inter", "Roboto", system-ui, sans-serif' }}>
+        <div className="bg-light py-5">
             <Container>
                 <div className="text-center mb-5">
                     <h1 className="fw-bold text-dark display-5">Secure Checkout</h1>
@@ -116,8 +150,7 @@ const Checkout = () => {
 
                             <Button
                                 type="submit"
-                                className="w-100 py-3 fs-5 rounded-4 shadow-sm fw-bold mb-4 mb-lg-0"
-                                style={{ background: 'linear-gradient(to right, #2b5876, #4e4376)', border: 'none' }}
+                                className="btn-gradient w-100 py-3 fs-5 rounded-4 shadow-sm fw-bold mb-4 mb-lg-0"
                             >
                                 Place Order - ${totalCartPrice.toFixed(2)}
                             </Button>
@@ -126,11 +159,11 @@ const Checkout = () => {
 
                     {/* Right Column - Order Summary */}
                     <Col lg={4}>
-                        <Card className="shadow-sm border-0 rounded-4 position-sticky" style={{ top: '2rem' }}>
+                        <Card className="shadow-sm border-0 rounded-4 position-sticky" style={{ top: '5rem' }}>
                             <Card.Header className="bg-white border-bottom-0 pt-4 pb-0 px-4">
                                 <h5 className="fw-bold mb-0 d-flex justify-content-between align-items-center text-dark">
                                     Order Summary
-                                    <Badge bg="primary" pill style={{ background: 'linear-gradient(to right, #2b5876, #4e4376)' }}>
+                                    <Badge bg="primary" pill style={{ background: 'linear-gradient(45deg, #ff512f, #dd2476)', border: 'none' }}>
                                         {cartItems.length}
                                     </Badge>
                                 </h5>
@@ -154,7 +187,7 @@ const Checkout = () => {
 
                                 <div className="border-top pt-3 d-flex justify-content-between align-items-center mt-3">
                                     <span className="fw-bold fs-5 text-dark">Total</span>
-                                    <strong className="fs-4 d-block" style={{ color: '#2b5876' }}>${totalCartPrice.toFixed(2)}</strong>
+                                    <strong className="fs-4 d-block" style={{ color: '#1e3c72' }}>${totalCartPrice.toFixed(2)}</strong>
                                 </div>
                             </Card.Body>
                         </Card>

@@ -1,5 +1,13 @@
 import axios from 'axios';
 
+const HTTP_STATUS_MESSAGES = {
+  400: 'Bad Request',
+  401: 'Unauthorized',
+  403: 'Forbidden',
+  404: 'Not Found',
+  500: 'Internal Server Error',
+};
+
 class HttpError extends Error {
   constructor(message, { status = 0, name = 'HTTPError', original = null } = {}) {
     super(message);
@@ -41,15 +49,7 @@ class ResponseHandler {
   static getErrorMessage(error) {
     if (error.response) {
       const status = error.response.status;
-      const messages = {
-        400: 'Bad Request',
-        401: 'Unauthorized',
-        403: 'Forbidden',
-        404: 'Not Found',
-        500: 'Internal Server Error',
-      };
-
-      return messages[status] ?? 'Something went wrong';
+      return HTTP_STATUS_MESSAGES[status] ?? 'Something went wrong';
     }
 
     if (error.request) {

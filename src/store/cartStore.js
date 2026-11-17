@@ -1,9 +1,13 @@
 import { create } from "zustand";
 
 const calculateTotals = (cartItems) => {
-    const totalCartItem = cartItems.reduce((total, item) => total + item.count, 0);
-    const totalCartPrice = Number(cartItems.reduce((total, item) => total + (item.price * item.count), 0).toFixed(2));
-    return { totalCartItem, totalCartPrice };
+    let totalCartItem = 0;
+    let totalCartPrice = 0;
+    for (const item of cartItems) {
+        totalCartItem += item.count;
+        totalCartPrice += item.price * item.count;
+    }
+    return { totalCartItem, totalCartPrice: Number(totalCartPrice.toFixed(2)) };
 };
 
 const useCartStore = create((set, get) => ({
