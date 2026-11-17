@@ -1,11 +1,11 @@
-import { createBrowserRouter } from 'react-router';
-import App from './App';
-import Products from './components/Products';
-import Login from './components/Login';
-import Checkout from './components/Checkout';
-import Home from './components/Home';
+import { lazy } from 'react';
+import { createBrowserRouter, Navigate } from 'react-router';
 import useCartStore from './store/cartStore';
-import { Navigate } from 'react-router';
+
+const Home = lazy(() => import('./components/Home'));
+const Products = lazy(() => import('./components/Products'));
+const Login = lazy(() => import('./components/Login'));
+const Checkout = lazy(() => import('./components/Checkout'));
 
 const ProtectedRoute = ({ children }) => {
   const totalItem = useCartStore((state) => state.totalCartItem);
