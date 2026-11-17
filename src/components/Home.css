@@ -1,0 +1,43 @@
+/* Category cards: zoom-on-hover */
+.home .category-card {
+  cursor: pointer;
+}
+
+.home .category-img {
+  opacity: 0.7;
+  transition: transform 600ms var(--ease-out), opacity 300ms var(--ease-out);
+  transform-origin: center;
+}
+
+.home .category-card:hover .category-img {
+  transform: scale(1.06);
+  opacity: 1;
+}
+
+/* Scroll reveal */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 600ms var(--ease-out), transform 600ms var(--ease-out);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Reduced motion: drop movement, keep a gentle fade */
+@media (prefers-reduced-motion: reduce) {
+  .home .category-img {
+    transition: none;
+  }
+
+  .reveal {
+    transform: none;
+    transition: opacity 200ms ease;
+  }
+
+  .reveal.is-visible {
+    opacity: 1;
+  }
+}
