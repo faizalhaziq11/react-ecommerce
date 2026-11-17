@@ -22,19 +22,19 @@ const Footer = () => {
           <Col lg={2} md={6} xs={6}>
             <h5 className="mb-3 fw-bold">Company</h5>
             <ul className="list-unstyled opacity-75 mb-0" style={{ lineHeight: '2.2' }}>
-              <li><a href="#" className="text-white text-decoration-none">About Us</a></li>
-              <li><a href="#" className="text-white text-decoration-none">Careers</a></li>
-              <li><a href="#" className="text-white text-decoration-none">Privacy Policy</a></li>
-              <li><a href="#" className="text-white text-decoration-none">Terms of Service</a></li>
+              <li>About Us</li>
+              <li>Careers</li>
+              <li>Privacy Policy</li>
+              <li>Terms of Service</li>
             </ul>
           </Col>
           <Col lg={3} md={6} xs={6}>
             <h5 className="mb-3 fw-bold">Help & Support</h5>
             <ul className="list-unstyled opacity-75 mb-0" style={{ lineHeight: '2.2' }}>
-              <li><a href="#" className="text-white text-decoration-none">Shipping & Returns</a></li>
-              <li><a href="#" className="text-white text-decoration-none">FAQ</a></li>
-              <li><a href="#" className="text-white text-decoration-none">Track Order</a></li>
-              <li><a href="#" className="text-white text-decoration-none">Customer Care</a></li>
+              <li>Shipping & Returns</li>
+              <li>FAQ</li>
+              <li>Track Order</li>
+              <li>Customer Care</li>
             </ul>
           </Col>
           <Col lg={3} md={6}>
