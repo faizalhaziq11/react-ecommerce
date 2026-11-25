@@ -1,6 +1,12 @@
 /* Category cards: zoom-on-hover */
-.home .category-card {
-  cursor: pointer;
+.home .category-link {
+  display: block;
+  border-radius: var(--bs-border-radius-xl);
+}
+
+.home .category-link:focus-visible {
+  outline: 3px solid #ff512f;
+  outline-offset: 4px;
 }
 
 .home .category-img {
@@ -9,9 +15,20 @@
   transform-origin: center;
 }
 
-.home .category-card:hover .category-img {
-  transform: scale(1.06);
+.home .category-link:focus-visible .category-img {
   opacity: 1;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .home .category-link:hover .category-img {
+    transform: scale(1.06);
+    opacity: 1;
+  }
+}
+
+/* Hero background image */
+.home .hero-img {
+  object-fit: cover;
 }
 
 /* Scroll reveal */

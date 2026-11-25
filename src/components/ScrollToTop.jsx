@@ -1,15 +1,7 @@
-import { useEffect } from 'react';
-import { useLocation } from 'react-router';
+import { ScrollRestoration } from 'react-router';
 
-const ScrollToTop = () => {
-  const { key: locationKey, hash } = useLocation();
-
-  useEffect(() => {
-    if (hash) return;
-    window.scrollTo(0, 0);
-  }, [locationKey, hash]);
-
-  return null;
-};
+// Scrolls to top on new navigations, restores position on back/forward,
+// and leaves hash links (/#about) alone.
+const ScrollToTop = () => <ScrollRestoration />;
 
 export default ScrollToTop;

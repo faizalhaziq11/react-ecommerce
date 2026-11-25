@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -8,28 +8,67 @@ import Button from 'react-bootstrap/Button';
 import FloatingLabel from 'react-bootstrap/FloatingLabel';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Badge from 'react-bootstrap/Badge';
-import { useNavigate } from 'react-router';
+import { useBlocker, useNavigate } from 'react-router';
 import useCartStore from '../store/cartStore';
+import { formatPrice } from '../helper/format';
+
+const Field = ({ id, label, error, className = '', ...props }) => (
+    <FloatingLabel controlId={id} label={label} className={`text-secondary ${className}`}>
+        <Form.Control name={id} placeholder={label} required className="rounded-3" {...props} />
+        <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
+    </FloatingLabel>
+);
+
+const EMPTY_FORM = {
+    firstName: '',
+    lastName: '',
+    email: '',
+    address: '',
+    city: '',
+    zip: '',
+    cardName: '',
+    cardNumber: '',
+    expDate: '',
+    cvv: ''
+};
 
 const Checkout = () => {
     const cartItems = useCartStore((state) => state.cartItems);
+    const totalCartItem = useCartStore((state) => state.totalCartItem);
     const totalCartPrice = useCartStore((state) => state.totalCartPrice);
     const clearCart = useCartStore((state) => state.clearCart);
     const navigate = useNavigate();
 
     const [submitted, setSubmitted] = useState(false);
-    const [formData, setFormData] = useState({
-        firstName: '',
-        lastName: '',
-        email: '',
-        address: '',
-        city: '',
-        zip: '',
-        cardName: '',
-        cardNumber: '',
-        expDate: '',
-        cvv: ''
-    });
+    const [validated, setValidated] = useState(false);
+    const [formData, setFormData] = useState(EMPTY_FORM);
+
+    const isDirty = !submitted && Object.values(formData).some((v) => v.trim() !== '');
+
+    // Warn before leaving with unsaved details (in-app navigation)
+    const blocker = useBlocker(
+        ({ currentLocation, nextLocation }) => isDirty && currentLocation.pathname !== nextLocation.pathname
+    );
+
+    useEffect(() => {
+        if (blocker.state !== 'blocked') return;
+        if (window.confirm('You have unsaved checkout details. Leave this page?')) {
+            blocker.proceed();
+        } else {
+            blocker.reset();
+        }
+    }, [blocker]);
+
+    // Warn before leaving with unsaved details (reload / close tab)
+    useEffect(() => {
+        if (!isDirty) return;
+        const handler = (e) => {
+            e.preventDefault();
+            e.returnValue = '';
+        };
+        window.addEventListener('beforeunload', handler);
+        return () => window.removeEventListener('beforeunload', handler);
+    }, [isDirty]);
 
     const handleInputChange = (e) => {
         const { id, value } = e.target;
@@ -38,6 +77,12 @@ const Checkout = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        const form = e.currentTarget;
+        if (!form.checkValidity()) {
+            setValidated(true);
+            form.querySelector(':invalid')?.focus();
+            return;
+        }
         setSubmitted(true);
     };
 
@@ -51,11 +96,11 @@ const Checkout = () => {
             <div className="bg-light py-5">
                 <Container>
                     <Card className="shadow-sm border-0 rounded-4 text-center mx-auto animate-fade-in-up" style={{ maxWidth: '520px' }}>
-                        <Card.Body className="p-5">
+                        <Card.Body className="p-5" aria-live="polite">
                             <div className="text-success mb-3">
-                                <i className="bi bi-check-circle-fill" style={{ fontSize: '4rem' }}></i>
+                                <i className="bi bi-check-circle-fill" style={{ fontSize: '4rem' }} aria-hidden="true"></i>
                             </div>
-                            <h2 className="fw-bold text-dark mb-2">Order Placed!</h2>
+                            <h1 className="h2 fw-bold text-dark mb-2">Order Placed!</h1>
                             <p className="text-muted mb-4">Thank you for your purchase. A confirmation email is on its way.</p>
                             <Button className="btn-gradient rounded-pill px-4 py-2 fw-bold" onClick={handleContinue}>
                                 Continue Shopping
@@ -66,6 +111,8 @@ const Checkout = () => {
             </div>
         );
     }
+
+    const fieldProps = (id) => ({ id, value: formData[id], onChange: handleInputChange });
 
     return (
         <div className="bg-light py-5">
@@ -78,43 +125,48 @@ const Checkout = () => {
                 <Row className="g-5">
                     {/* Left Column - Forms */}
                     <Col lg={8}>
-                        <Form onSubmit={handleSubmit}>
+                        <Form noValidate validated={validated} onSubmit={handleSubmit}>
                             {/* Contact Info Card */}
                             <Card className="shadow-sm border-0 rounded-4 mb-4">
                                 <Card.Body className="p-4 p-md-5">
-                                    <h4 className="fw-bold mb-4 text-dark">1. Contact & Shipping</h4>
+                                    <h2 className="h4 fw-bold mb-4 text-dark">1. Contact &amp; Shipping</h2>
 
                                     <Row className="g-3 mb-3">
                                         <Col md={6}>
-                                            <FloatingLabel controlId="firstName" label="First Name" className="text-secondary">
-                                                <Form.Control type="text" placeholder="First Name" value={formData.firstName} onChange={handleInputChange} required className="rounded-3" />
-                                            </FloatingLabel>
+                                            <Field {...fieldProps('firstName')} label="First Name" type="text" autoComplete="given-name" error="Enter your first name." />
                                         </Col>
                                         <Col md={6}>
-                                            <FloatingLabel controlId="lastName" label="Last Name" className="text-secondary">
-                                                <Form.Control type="text" placeholder="Last Name" value={formData.lastName} onChange={handleInputChange} required className="rounded-3" />
-                                            </FloatingLabel>
+                                            <Field {...fieldProps('lastName')} label="Last Name" type="text" autoComplete="family-name" error="Enter your last name." />
                                         </Col>
                                     </Row>
 
-                                    <FloatingLabel controlId="email" label="Email Address" className="mb-3 text-secondary">
-                                        <Form.Control type="email" placeholder="name@example.com" value={formData.email} onChange={handleInputChange} required className="rounded-3" />
-                                    </FloatingLabel>
+                                    <Field
+                                        {...fieldProps('email')}
+                                        label="Email Address"
+                                        type="email"
+                                        autoComplete="email"
+                                        spellCheck={false}
+                                        autoCapitalize="none"
+                                        className="mb-3"
+                                        error="Enter a valid email, e.g. name@example.com."
+                                    />
 
-                                    <FloatingLabel controlId="address" label="Street Address" className="mb-3 text-secondary">
-                                        <Form.Control type="text" placeholder="1234 Main St" value={formData.address} onChange={handleInputChange} required className="rounded-3" />
-                                    </FloatingLabel>
+                                    <Field {...fieldProps('address')} label="Street Address" type="text" autoComplete="street-address" className="mb-3" error="Enter your street address." />
 
                                     <Row className="g-3">
                                         <Col md={8}>
-                                            <FloatingLabel controlId="city" label="City" className="text-secondary">
-                                                <Form.Control type="text" placeholder="City" value={formData.city} onChange={handleInputChange} required className="rounded-3" />
-                                            </FloatingLabel>
+                                            <Field {...fieldProps('city')} label="City" type="text" autoComplete="address-level2" error="Enter your city." />
                                         </Col>
                                         <Col md={4}>
-                                            <FloatingLabel controlId="zip" label="Zip Code" className="text-secondary">
-                                                <Form.Control type="text" placeholder="Zip" value={formData.zip} onChange={handleInputChange} required className="rounded-3" />
-                                            </FloatingLabel>
+                                            <Field
+                                                {...fieldProps('zip')}
+                                                label="Zip Code"
+                                                type="text"
+                                                inputMode="numeric"
+                                                autoComplete="postal-code"
+                                                pattern="\d{5}(-\d{4})?"
+                                                error="Enter a 5-digit zip, e.g. 10001."
+                                            />
                                         </Col>
                                     </Row>
                                 </Card.Body>
@@ -123,26 +175,43 @@ const Checkout = () => {
                             {/* Payment Info Card */}
                             <Card className="shadow-sm border-0 rounded-4 mb-4">
                                 <Card.Body className="p-4 p-md-5">
-                                    <h4 className="fw-bold mb-4 text-dark">2. Payment Details</h4>
+                                    <h2 className="h4 fw-bold mb-4 text-dark">2. Payment Details</h2>
 
-                                    <FloatingLabel controlId="cardName" label="Name on Card" className="mb-3 text-secondary">
-                                        <Form.Control type="text" placeholder="Name on Card" value={formData.cardName} onChange={handleInputChange} required className="rounded-3" />
-                                    </FloatingLabel>
+                                    <Field {...fieldProps('cardName')} label="Name on Card" type="text" autoComplete="cc-name" className="mb-3" error="Enter the name shown on your card." />
 
-                                    <FloatingLabel controlId="cardNumber" label="Card Number" className="mb-3 text-secondary">
-                                        <Form.Control type="text" placeholder="0000 0000 0000 0000" value={formData.cardNumber} onChange={handleInputChange} required className="rounded-3" />
-                                    </FloatingLabel>
+                                    <Field
+                                        {...fieldProps('cardNumber')}
+                                        label="Card Number"
+                                        type="text"
+                                        inputMode="numeric"
+                                        autoComplete="cc-number"
+                                        pattern="[\d ]{12,23}"
+                                        className="mb-3"
+                                        error="Enter a 12–19 digit card number."
+                                    />
 
                                     <Row className="g-3">
                                         <Col md={6}>
-                                            <FloatingLabel controlId="expDate" label="Expiration (MM/YY)" className="text-secondary">
-                                                <Form.Control type="text" placeholder="MM/YY" value={formData.expDate} onChange={handleInputChange} required className="rounded-3" />
-                                            </FloatingLabel>
+                                            <Field
+                                                {...fieldProps('expDate')}
+                                                label="Expiration (MM/YY)"
+                                                type="text"
+                                                inputMode="numeric"
+                                                autoComplete="cc-exp"
+                                                pattern="(0[1-9]|1[0-2])\/\d{2}"
+                                                error="Use MM/YY, e.g. 08/28."
+                                            />
                                         </Col>
                                         <Col md={6}>
-                                            <FloatingLabel controlId="cvv" label="CVV" className="text-secondary">
-                                                <Form.Control type="text" placeholder="123" value={formData.cvv} onChange={handleInputChange} required className="rounded-3" />
-                                            </FloatingLabel>
+                                            <Field
+                                                {...fieldProps('cvv')}
+                                                label="CVV"
+                                                type="text"
+                                                inputMode="numeric"
+                                                autoComplete="cc-csc"
+                                                pattern="\d{3,4}"
+                                                error="Enter the 3–4 digit code on the back of your card."
+                                            />
                                         </Col>
                                     </Row>
                                 </Card.Body>
@@ -152,7 +221,7 @@ const Checkout = () => {
                                 type="submit"
                                 className="btn-gradient w-100 py-3 fs-5 rounded-4 shadow-sm fw-bold mb-4 mb-lg-0"
                             >
-                                Place Order - ${totalCartPrice.toFixed(2)}
+                                Place Order – <span className="tabular-nums">{formatPrice(totalCartPrice)}</span>
                             </Button>
                         </Form>
                     </Col>
@@ -161,33 +230,34 @@ const Checkout = () => {
                     <Col lg={4}>
                         <Card className="shadow-sm border-0 rounded-4 position-sticky" style={{ top: '5rem' }}>
                             <Card.Header className="bg-white border-bottom-0 pt-4 pb-0 px-4">
-                                <h5 className="fw-bold mb-0 d-flex justify-content-between align-items-center text-dark">
+                                <h2 className="h5 fw-bold mb-0 d-flex justify-content-between align-items-center text-dark">
                                     Order Summary
                                     <Badge bg="primary" pill style={{ background: 'linear-gradient(45deg, #ff512f, #dd2476)', border: 'none' }}>
-                                        {cartItems.length}
+                                        <span className="tabular-nums">{totalCartItem}</span>
+                                        <span className="visually-hidden"> items</span>
                                     </Badge>
-                                </h5>
+                                </h2>
                             </Card.Header>
                             <Card.Body className="p-4">
-                                <ListGroup variant="flush" className="mb-3">
-                                    {cartItems.length === 0 ? (
-                                        <p className="text-muted text-center my-3">Your cart is empty.</p>
-                                    ) : (
-                                        cartItems.map((item, index) => (
-                                            <ListGroup.Item key={index} className="px-0 d-flex justify-content-between align-items-center lh-sm bg-transparent border-light">
-                                                <div className="pe-3">
-                                                    <h6 className="my-0 fw-semibold text-dark">{item.title || item.name || `Product ${item.id}`}</h6>
-                                                    <small className="text-muted">Qty: {item.count}</small>
+                                {cartItems.length === 0 ? (
+                                    <p className="text-muted text-center my-3">Your cart is empty.</p>
+                                ) : (
+                                    <ListGroup variant="flush" className="mb-3">
+                                        {cartItems.map((item) => (
+                                            <ListGroup.Item key={item.id} className="px-0 d-flex justify-content-between align-items-center lh-sm bg-transparent border-light">
+                                                <div className="pe-3 min-w-0">
+                                                    <h3 className="h6 my-0 fw-semibold text-dark text-truncate">{item.title || item.name || `Product ${item.id}`}</h3>
+                                                    <small className="text-muted">Qty: <span className="tabular-nums">{item.count}</span></small>
                                                 </div>
-                                                <span className="text-secondary fw-semibold">${(item.price * item.count).toFixed(2)}</span>
+                                                <span className="text-secondary fw-semibold tabular-nums">{formatPrice(item.price * item.count)}</span>
                                             </ListGroup.Item>
-                                        ))
-                                    )}
-                                </ListGroup>
+                                        ))}
+                                    </ListGroup>
+                                )}
 
                                 <div className="border-top pt-3 d-flex justify-content-between align-items-center mt-3">
                                     <span className="fw-bold fs-5 text-dark">Total</span>
-                                    <strong className="fs-4 d-block" style={{ color: '#1e3c72' }}>${totalCartPrice.toFixed(2)}</strong>
+                                    <strong className="fs-4 d-block tabular-nums" style={{ color: '#1e3c72' }}>{formatPrice(totalCartPrice)}</strong>
                                 </div>
                             </Card.Body>
                         </Card>

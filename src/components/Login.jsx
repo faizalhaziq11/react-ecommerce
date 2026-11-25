@@ -9,24 +9,23 @@ import FloatingLabel from 'react-bootstrap/FloatingLabel';
 import { useNavigate, Link } from 'react-router';
 
 const Login = () => {
-    const [email, setEmail] = useState('johnd');
-    const [password, setPassword] = useState('m38rmF$');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [resetNotice, setResetNotice] = useState('');
     const navigate = useNavigate();
 
     const handleSubmit = (e) => {
         e.preventDefault();
         // In a real app, perform authentication here
-        console.log("Logging in with: ", email);
-        navigate('/shop'); // Redirect to home/shop on submit
+        navigate('/shop');
     };
 
     return (
         <div
-            className="d-flex align-items-center justify-content-center"
+            className="d-flex flex-grow-1 align-items-center justify-content-center"
             style={{
                 background: 'linear-gradient(135deg, #ff512f 0%, #dd2476 100%)',
                 padding: '40px 16px',
-                minHeight: 'calc(100vh - 76px)'
             }}
         >
             <Container>
@@ -35,19 +34,26 @@ const Login = () => {
                         <Card className="shadow-lg border-0 rounded-4 overflow-hidden">
                             <Card.Body className="p-4 p-md-5">
                                 <div className="text-center mb-4">
-                                    <h2 className="fw-bold mb-1 text-dark">Welcome Back</h2>
-                                    <p className="text-muted">Please sign in to your account</p>
+                                    <h1 className="h2 fw-bold mb-1 text-dark">Welcome Back</h1>
+                                    <p className="text-muted mb-1">Sign in to your account</p>
+                                    <p className="small text-muted mb-0">
+                                        Demo account: <code translate="no">johnd</code> / <code translate="no">m38rmF$</code>
+                                    </p>
                                 </div>
 
                                 <Form onSubmit={handleSubmit}>
                                     <FloatingLabel
                                         controlId="floatingEmail"
-                                        label="Username / Email address"
+                                        label="Username or Email"
                                         className="mb-3 text-secondary"
                                     >
                                         <Form.Control
                                             type="text"
-                                            placeholder="username / name@example.com"
+                                            name="username"
+                                            autoComplete="username"
+                                            autoCapitalize="none"
+                                            spellCheck={false}
+                                            placeholder="Username or Email"
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
                                             required
@@ -62,6 +68,8 @@ const Login = () => {
                                     >
                                         <Form.Control
                                             type="password"
+                                            name="password"
+                                            autoComplete="current-password"
                                             placeholder="Password"
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
@@ -70,17 +78,25 @@ const Login = () => {
                                         />
                                     </FloatingLabel>
 
-                                    <div className="d-flex justify-content-between align-items-center mb-4">
+                                    <div className="d-flex justify-content-between align-items-center mb-2">
                                         <Form.Check
                                             type="checkbox"
                                             id="remember-me"
+                                            name="remember"
                                             label="Remember me"
                                             className="text-muted small"
                                         />
-                                        <a href="#" onClick={(e) => e.preventDefault()} className="text-decoration-none small fw-semibold" style={{ color: '#ff512f' }}>
-                                            Forgot password?
-                                        </a>
+                                        <Button
+                                            type="button"
+                                            variant="link"
+                                            className="p-0 text-decoration-none small fw-semibold"
+                                            style={{ color: '#ff512f' }}
+                                            onClick={() => setResetNotice('Password reset isn’t available in this demo. Use the demo account above.')}
+                                        >
+                                            Forgot Password?
+                                        </Button>
                                     </div>
+                                    <p className="small text-muted mb-4" aria-live="polite">{resetNotice}</p>
 
                                     <Button
                                         type="submit"
@@ -92,7 +108,7 @@ const Login = () => {
 
                                 <div className="text-center mt-4">
                                     <p className="text-muted small mb-0">
-                                        Don't have an account? <Link to="/" className="fw-semibold text-decoration-none" style={{ color: '#ff512f' }}>Sign up</Link>
+                                        Don’t have an account? <Link to="/shop" className="fw-semibold text-decoration-none" style={{ color: '#ff512f' }}>Browse as Guest</Link>
                                     </p>
                                 </div>
                             </Card.Body>

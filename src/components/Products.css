@@ -73,4 +73,8 @@
   .product-img {
     transition: none;
   }
+
+  .spinner-fast {
+    animation-duration: 1.5s;
+  }
 }

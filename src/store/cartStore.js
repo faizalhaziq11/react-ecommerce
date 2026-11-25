@@ -37,6 +37,10 @@ const useCartStore = create(
 
                 set({ cartItems: newCartItems, ...calculateTotals(newCartItems) });
             },
+            restoreCart: (items) => {
+                const cartItems = Array.isArray(items) ? items : [];
+                set({ cartItems, ...calculateTotals(cartItems) });
+            },
             removeFromCart: (productId) => {
                 const { cartItems } = get();
                 const newCartItems = cartItems.filter((item) => item.id !== productId);
